@@ -1,4 +1,4 @@
-use homework1::prelude::*;
+use smarthouse_homework::prelude::*;
 
 #[test]
 fn test_house() {

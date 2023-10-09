@@ -1,4 +1,4 @@
-use homework1::prelude::*;
+use smarthouse_homework::prelude::*;
 
 fn main() {
     // Инициализация устройств
