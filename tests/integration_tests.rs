@@ -15,8 +15,12 @@ fn test_house() {
     let rooms = vec![&room1, &room2];
     let house = SmartHouse { _rooms: rooms };
     house.get_rooms();
-    house.devices("Room1");
-    house.devices("Room2");
+    let house_room1 = house.devices("Room1");
+    assert_eq!(house_room1.is_ok(), true);
+    let house_room2 = house.devices("Room2");
+    assert_eq!(house_room2.is_ok(), true);
+    let house_room3_err = house.devices("Room3");
+    assert_ne!(house_room3_err.is_ok(), true);
 }
 
 #[test]

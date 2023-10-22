@@ -13,9 +13,14 @@ impl SmartHouse<'_> {
         rooms
     }
 
-    pub fn devices(&self, room: &str) -> &Vec<String> {
-        let room = &self._rooms.iter().find(|r| r.description == room).unwrap();
-        room.show_devices()
+    pub fn devices(&self, room: &str) -> Result<&Vec<String>, GetRoomError> {
+        let room = &self._rooms.iter().find(|r| r.description == room);
+        match room {
+            None => Err(GetRoomError {
+                reason: "Room can not be found!".to_string(),
+            }),
+            Some(room) => Ok(room.show_devices()),
+        }
     }
 
     pub fn create_report(
@@ -24,4 +29,9 @@ impl SmartHouse<'_> {
     ) -> String {
         info.to_string()
     }
+}
+
+#[derive(Debug)]
+pub struct GetRoomError {
+    pub reason: String,
 }
