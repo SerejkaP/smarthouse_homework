@@ -1,39 +1,56 @@
+use std::{
+    collections::HashMap,
+    io::{self, Write},
+};
+
 use smarthouse_homework::prelude::*;
 
 fn main() {
     // Инициализация устройств
     let socket1 = Socket::build_socket(String::from("Socket1"));
-    let socket2 = Socket::build_socket(String::from("Socket2"));
-    let thermo = Thermometer::build_thermometer();
+    let thermo1 = Thermometer::build_thermometer(String::from("Thermometer1"));
 
     // Инициализация дома
-    let devices1 = vec![socket1.show_description().to_string()];
+    let devices1: Vec<RoomDevices> = vec![
+        RoomDevices::Socket(socket1),
+        RoomDevices::Thermometer(thermo1),
+    ];
     let room1 = Room::new(String::from("Room1"), devices1);
-    let devices2 = vec![socket2.show_description().to_string()];
-    let room2 = Room::new(String::from("Room2"), devices2);
-    let rooms = vec![&room1, &room2];
-    let house = SmartHouse { _rooms: rooms };
-
-    // Строим отчёт с использованием `OwningDeviceInfoProvider`.
-    let info_provider_1 = OwningDeviceInfoProvider { socket: socket1 };
-    // todo: после добавления обобщённого аргумента в метод, расскоментировать передачу параметра
-    let report1 = house.create_report(&info_provider_1.info());
-
-    // Строим отчёт с использованием `BorrowingDeviceInfoProvider`.
-    let info_provider_2 = BorrowingDeviceInfoProvider {
-        socket: &socket2,
-        thermo: &thermo,
+    let mut house = SmartHouse {
+        description: String::from("House"),
+        rooms: HashMap::from([(room1.show_description().to_string(), room1)]),
     };
-    // todo: после добавления обобщённого аргумента в метод, расскоментировать передачу параметра
-    let report2 = house.create_report(&info_provider_2.info());
 
-    let rooms_report = house.get_rooms();
-    let room1_devices = house.devices(rooms_report.first().unwrap());
+    // Добавляем
+    house.add_room();
+    house.rooms_info();
+    let rooms = house.rooms_info();
+    println!("Now rooms: {:#?}", rooms);
+    io::stdout()
+        .write_all(b"Write room name to add device in it\n")
+        .unwrap();
+    let mut buff = String::new();
+    io::stdin().read_line(&mut buff).unwrap();
+    let room_description = buff.trim().to_string();
+    house.add_device(room_description.as_str());
+    let rooms_info = house.rooms_info();
+    let house_info = house.info();
+    println!("Rooms info: {:#?}", rooms_info);
+    io::stdout().write_all(house_info.as_bytes()).unwrap();
 
-    println!("Rooms: {:#?}", rooms_report);
-    println!("Room1 devices: {:#?}", room1_devices);
-
-    // Выводим отчёты на экран:
-    println!("Report #1: {report1}");
-    println!("Report #2: {report2}");
+    // Удаляем
+    house.remove_room();
+    let rooms_info = house.rooms_info();
+    println!("Now rooms: {:#?}", rooms_info);
+    io::stdout()
+        .write_all(b"Write room name to remove device in it\n")
+        .unwrap();
+    let mut buff = String::new();
+    io::stdin().read_line(&mut buff).unwrap();
+    let room_description = buff.trim().to_string();
+    house.remove_device(room_description.as_str());
+    let rooms_info = house.rooms_info();
+    let house_info = house.info();
+    println!("Rooms info: {:#?}", rooms_info);
+    io::stdout().write_all(house_info.as_bytes()).unwrap();
 }

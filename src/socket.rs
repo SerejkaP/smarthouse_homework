@@ -1,27 +1,45 @@
+use crate::room_devices::Device;
+
+#[derive(Debug, Clone)]
 pub struct Socket {
-    _power: u32,
+    power: u32,
     description: String,
-    _on: bool,
+    on: bool,
 }
 
 impl Socket {
     pub fn build_socket(description: String) -> Self {
         Self {
-            _power: 0,
+            power: 0,
             description,
-            _on: false,
+            on: false,
         }
     }
 
-    pub fn _show_power(&self) -> u32 {
-        self._power
+    pub fn show_power(&self) -> u32 {
+        self.power
     }
 
-    pub fn show_description(&self) -> &str {
-        &self.description
+    pub fn turn_on(&mut self, on: bool) {
+        self.on = on;
     }
 
-    pub fn _turn_on(&mut self, on: bool) {
-        self._on = on;
+    pub fn set_power(&mut self, power: u32) {
+        self.power = power;
+    }
+}
+
+impl Device for Socket {
+    fn info(&self) -> String {
+        self.show_description().to_string()
+            + " - "
+            + self.show_power().to_string().as_str()
+            + "volt ("
+            + if self.on { "ON" } else { "OFF" }
+            + ")"
+    }
+
+    fn show_description(&self) -> String {
+        self.description.to_string()
     }
 }
